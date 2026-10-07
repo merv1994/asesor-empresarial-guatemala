@@ -1,0 +1,7 @@
+streamlit
+openai
+python-docx
+pypdf
+graphviz
+reportlab
+matplotlib
