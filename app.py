@@ -4,6 +4,10 @@ import graphviz
 import matplotlib.pyplot as plt
 
 from punto_equilibrio import crear_grafico_equilibrio
+from ubicaciones_guatemala import (
+    obtener_departamentos,
+    obtener_municipios
+)
 from pathlib import Path
 from io import BytesIO
 from html import unescape
@@ -294,7 +298,8 @@ def crear_pdf_analisis(
     gastos,
     texto_respuesta,
     grafico_equilibrio_pdf=None,
-    resultado_equilibrio=None
+    resultado_equilibrio=None,
+    organigrama_pdf=None
 ):
     buffer = BytesIO()
 
@@ -593,114 +598,114 @@ def crear_pdf_analisis(
 
         indice += 1
     if (
-    grafico_equilibrio_pdf is not None
-    and resultado_equilibrio is not None
-):
+        grafico_equilibrio_pdf is not None
+        and resultado_equilibrio is not None
+    ):
         contenido.append(Spacer(1, 16))
 
-    contenido.append(
-        Paragraph(
-            "Punto de equilibrio",
-            encabezado
+        contenido.append(
+            Paragraph(
+                "Punto de equilibrio",
+                encabezado
+            )
         )
-    )
-
-    datos_equilibrio = [
-        [
-            Paragraph("<b>Indicador</b>", celda_encabezado),
-            Paragraph("<b>Resultado</b>", celda_encabezado)
-        ],
-        [
-            Paragraph("Unidades mínimas", celda),
-            Paragraph(
-                (
-                    f"{resultado_equilibrio['unidades_minimas']} "
-                    "unidades"
-                ),
-                celda
-            )
-        ],
-        [
-            Paragraph("Ventas necesarias", celda),
-            Paragraph(
-                (
-                    f"Q"
-                    f"{resultado_equilibrio['ventas_equilibrio']:,.2f}"
-                ),
-                celda
-            )
-        ],
-        [
-            Paragraph("Margen por unidad", celda),
-            Paragraph(
-                (
-                    f"Q"
-                    f"{resultado_equilibrio['margen_unitario']:,.2f}"
-                ),
-                celda
-            )
+    
+        datos_equilibrio = [
+            [
+                Paragraph("<b>Indicador</b>", celda_encabezado),
+                Paragraph("<b>Resultado</b>", celda_encabezado)
+            ],
+            [
+                Paragraph("Unidades mínimas", celda),
+                Paragraph(
+                    (
+                        f"{resultado_equilibrio['unidades_minimas']} "
+                        "unidades"
+                    ),
+                    celda
+                )
+            ],
+            [
+                Paragraph("Ventas necesarias", celda),
+                Paragraph(
+                    (
+                        f"Q"
+                        f"{resultado_equilibrio['ventas_equilibrio']:,.2f}"
+                    ),
+                    celda
+                )
+            ],
+            [
+                Paragraph("Margen por unidad", celda),
+                Paragraph(
+                    (
+                        f"Q"
+                        f"{resultado_equilibrio['margen_unitario']:,.2f}"
+                    ),
+                    celda
+                )
+            ]
         ]
-    ]
-
-    tabla_equilibrio = Table(
-        datos_equilibrio,
-        colWidths=[7.5 * cm, 8.7 * cm],
-        repeatRows=1
-    )
-
-    tabla_equilibrio.setStyle(
-        TableStyle([
-            (
-                "BACKGROUND",
-                (0, 0),
-                (-1, 0),
-                HexColor("#2F6B5F")
-            ),
-            (
-                "BACKGROUND",
-                (0, 1),
-                (-1, -1),
-                HexColor("#F5F8F7")
-            ),
-            (
-                "GRID",
-                (0, 0),
-                (-1, -1),
-                0.4,
-                HexColor("#B7C9C2")
-            ),
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ("LEFTPADDING", (0, 0), (-1, -1), 7),
-            ("RIGHTPADDING", (0, 0), (-1, -1), 7),
-            ("TOPPADDING", (0, 0), (-1, -1), 6),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
-        ])
-    )
-
-    contenido.append(tabla_equilibrio)
-    contenido.append(Spacer(1, 12))
-
-    grafico_equilibrio_pdf.seek(0)
-
-    imagen_equilibrio = Image(
-        grafico_equilibrio_pdf,
-        width=16 * cm,
-        height=8.9 * cm
-    )
-
-    imagen_equilibrio.hAlign = "CENTER"
-
-    contenido.append(imagen_equilibrio)
-    contenido.append(Spacer(1, 8))
-
-    contenido.append(
-        Paragraph(
-            "Estimación elaborada a partir de los costos, "
-            "el precio de venta y el costo variable "
-            "proporcionados por el usuario.",
-            cuerpo
+    
+        tabla_equilibrio = Table(
+            datos_equilibrio,
+            colWidths=[7.5 * cm, 8.7 * cm],
+            repeatRows=1
         )
-    )
+    
+        tabla_equilibrio.setStyle(
+            TableStyle([
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (-1, 0),
+                    HexColor("#2F6B5F")
+                ),
+                (
+                    "BACKGROUND",
+                    (0, 1),
+                    (-1, -1),
+                    HexColor("#F5F8F7")
+                ),
+                (
+                    "GRID",
+                    (0, 0),
+                    (-1, -1),
+                    0.4,
+                    HexColor("#B7C9C2")
+                ),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 7),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 7),
+                ("TOPPADDING", (0, 0), (-1, -1), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+            ])
+        )
+    
+        contenido.append(tabla_equilibrio)
+        contenido.append(Spacer(1, 12))
+    
+        grafico_equilibrio_pdf.seek(0)
+    
+        imagen_equilibrio = Image(
+            grafico_equilibrio_pdf,
+            width=16 * cm,
+            height=8.9 * cm
+        )
+    
+        imagen_equilibrio.hAlign = "CENTER"
+    
+        contenido.append(imagen_equilibrio)
+        contenido.append(Spacer(1, 8))
+    
+        contenido.append(
+            Paragraph(
+                "Estimación elaborada a partir de los costos, "
+                "el precio de venta y el costo variable "
+                "proporcionados por el usuario.",
+                cuerpo
+            )
+        )
     contenido.append(PageBreak())
     contenido.append(
         Paragraph("Fuentes consultadas", encabezado)
@@ -886,22 +891,113 @@ def crear_pdf_analisis(
 
     buffer.seek(0)
     return buffer.getvalue()
+st.subheader("Información del negocio")
+st.markdown("#### Ubicación del negocio")
+
+departamento = st.selectbox(
+    "Departamento",
+    obtener_departamentos(),
+    key="departamento_negocio"
+)
+
+municipio = st.selectbox(
+    "Municipio",
+    obtener_municipios(departamento),
+    key=f"municipio_{departamento}"
+)
+
+zona = st.text_input(
+    "Zona, colonia, aldea o sector",
+    key="zona_negocio",
+    placeholder="Ejemplo: Zona 1, colonia El Centro o aldea Cambote"
+)
+
+partes_ubicacion = [
+    municipio,
+    departamento
+]
+
+if zona.strip():
+    partes_ubicacion.insert(0, zona.strip())
+
+ubicacion = ", ".join(partes_ubicacion)
+
 
 with st.form("diagnostico_empresarial"):
-    st.subheader("Información del negocio")
+    st.markdown("#### Datos generales del negocio")
 
     nombre_negocio = st.text_input(
         "Nombre del negocio"
     )
-
     actividad = st.text_area(
         "¿Qué productos o servicios ofrece?"
     )
-
-    ubicacion = st.text_input(
-        "Departamento y municipio"
+    st.markdown("#### Situación y tipo de negocio")
+    etapa_negocio = st.selectbox(
+        "¿En qué etapa se encuentra?",
+        [
+            "Deseo abrir un nuevo negocio",
+            "Ya tengo un negocio funcionando",
+            "Deseo ampliar o invertir nuevamente en mi negocio"
+        ]
     )
 
+    tipo_negocio = st.selectbox(
+        "Tipo de negocio",
+        [
+            "Tienda o comercio minorista",
+            "Restaurante o venta de alimentos",
+            "Cafetería o panadería",
+            "Barbería o salón de belleza",
+            "Papelería o librería",
+            "Taller mecánico",
+            "Producción agrícola",
+            "Desarrollo de software o tecnología",
+            "Consultoría o servicios profesionales",
+            "Venta por internet",
+            "Otro"
+        ]
+    )
+
+    otro_tipo_negocio = st.text_input(
+        "Especifica el tipo de negocio si seleccionaste Otro",
+        placeholder="Ejemplo: lavandería, gimnasio o carpintería"
+    )
+
+    st.markdown("#### Evaluación de inversión")
+
+    monto_inversion = st.number_input(
+        "Monto disponible o propuesto para invertir en quetzales",
+        min_value=0.0,
+        step=500.0,
+        help=(
+            "Puede ser una inversión para iniciar, ampliar o mejorar "
+            "un negocio existente."
+        )
+    )
+
+    destino_inversion = st.multiselect(
+        "¿En qué se utilizará la inversión?",
+        [
+            "Apertura del negocio",
+            "Compra de equipo o mobiliario",
+            "Compra de inventario",
+            "Alquiler o ampliación del local",
+            "Publicidad y marketing",
+            "Contratación de personal",
+            "Tecnología o sistemas",
+            "Capital de trabajo",
+            "Permisos y formalización",
+            "Otro"
+        ]
+    )
+
+    st.caption(
+        "Esta sección está disponible tanto para nuevos emprendimientos "
+        "como para negocios existentes que desean crecer."
+    )
+    antiguedad = st.selectbox
+    "¿Cuánto tiempo lleva funcionando?",
     antiguedad = st.selectbox(
         "¿Cuánto tiempo lleva funcionando?",
         [
@@ -1062,7 +1158,14 @@ DATOS DEL NEGOCIO
 
 Nombre: {nombre_negocio}
 Actividad económica: {actividad}
-Ubicación: {ubicacion}
+Etapa del negocio: {etapa_negocio}
+Tipo de negocio: {otro_tipo_negocio.strip() if tipo_negocio == "Otro" and otro_tipo_negocio.strip() else tipo_negocio}
+Monto disponible o propuesto para invertir: Q{monto_inversion:,.2f}
+Destino de la inversión: {", ".join(destino_inversion) if destino_inversion else "No especificado"}
+Departamento: {departamento}
+Municipio: {municipio}
+Zona, colonia, aldea o sector: {zona.strip() if zona.strip() else "No especificado"}
+Ubicación completa: {ubicacion}
 Tiempo funcionando: {antiguedad}
 Situación de formalización: {formalizacion}
 Cantidad de propietarios: {propietarios}
@@ -1081,7 +1184,29 @@ INSTRUCCIONES
 
 Utiliza la tesis como fundamento metodológico, pero no copies literalmente.
 No inventes leyes, montos, requisitos ni procedimientos oficiales.
+El monto disponible o propuesto para invertir es un dato confirmado
+por el usuario. Si es mayor que Q0.00, debes mencionarlo explícitamente
+en el resumen ejecutivo, el diagnóstico y el análisis financiero.
 
+Nunca escribas "capital no definido", "inversión no definida" o una frase
+equivalente cuando el usuario haya proporcionado un monto mayor que cero.
+
+Distingue las ventas mensuales actuales del capital disponible para invertir.
+Que las ventas sean Q0.00 no significa que el capital sea desconocido.
+
+Analiza el monto tomando en cuenta los destinos seleccionados, pero no
+inventes precios, porcentajes de distribución, rentabilidad ni tiempo de
+recuperación. Indica qué cotizaciones o datos adicionales hacen falta.
+Si el monto disponible para invertir es mayor que Q0.00, menciona
+explícitamente ese monto en el resumen ejecutivo, en el diagnóstico
+y en el análisis financiero.
+
+No indiques que el capital está sin definir si el usuario proporcionó
+un monto de inversión mayor que cero.
+
+Analiza la inversión utilizando los destinos seleccionados por el usuario.
+No inventes precios, costos, porcentajes de distribución, rentabilidad
+ni plazos de recuperación. Cuando falten datos, explica cuáles se necesitan.
 Genera:
 
 1. Resumen ejecutivo.
@@ -1237,6 +1362,29 @@ de la tesis si esa información no está disponible.
                         "No fue posible calcular el punto de equilibrio: "
                         + str(error_equilibrio)
                     )
+            st.subheader("Organigrama recomendado")
+
+            organigrama = crear_organigrama(
+                nombre_negocio,
+                actividad,
+                propietarios,
+                empleados,
+                canales
+            )
+
+            organigrama_pdf = None
+
+            try:
+                organigrama_png = organigrama.pipe(format="png")
+                organigrama_pdf = BytesIO(organigrama_png)
+                organigrama_pdf.seek(0)
+
+            except Exception:
+                st.warning(
+                    "El organigrama puede verse en la aplicación, "
+                    "pero no pudo prepararse para el PDF."
+                )
+
             pdf_generado = crear_pdf_analisis(
                 nombre_negocio,
                 actividad,
@@ -1245,7 +1393,8 @@ de la tesis si esa información no está disponible.
                 gastos,
                 texto_respuesta,
                 grafico_equilibrio_pdf,
-                resultado_equilibrio
+                resultado_equilibrio,
+                organigrama_pdf
             )
 
             st.download_button(
@@ -1255,15 +1404,6 @@ de la tesis si esa información no está disponible.
                 mime="application/pdf",
                 icon=":material/download:"
             )
-            st.subheader("Organigrama recomendado")
-
-            organigrama = crear_organigrama(
-    nombre_negocio,
-    actividad,
-    propietarios,
-    empleados,
-    canales
-)
 
             st.graphviz_chart(
                 organigrama,
@@ -1292,7 +1432,8 @@ de la tesis si esa información no está disponible.
 - [Sede Virtual del Registro Mercantil](https://sedevirtual.registromercantil.gob.gt/sedevirtual/)
                 """
             )
-
         except Exception as error:
-            st.error("No fue posible generar el diagnóstico.")
-            st.code(str(error))
+            st.error(
+                "El diagnóstico se generó, pero no fue posible preparar "
+                "todos los elementos adicionales. Intenta nuevamente."
+            )
